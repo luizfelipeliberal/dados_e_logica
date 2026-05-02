@@ -4,7 +4,7 @@ import uuid
 
 COLORS = ["azul", "marrom", "roxo", "vermelho"]
 
-# Azul e Marrom: 2->12 (ascendente), Roxo e Vermelho: 12->2 (descendente)
+# azul e marrom vão de 2 até 12, roxo e vermelho de 12 até 2
 ROW_NUMBERS = {
     "azul":     list(range(2, 13)),
     "marrom":   list(range(2, 13)),
@@ -16,7 +16,7 @@ SCORE_TABLE = [0, 1, 3, 6, 10, 15, 21, 28, 36, 45, 55, 66, 78]
 PENALTY_POINTS = -5
 MAX_PENALTIES = 4
 MIN_MARKS_TO_LOCK = 5
-TURN_DURATION = 80  # segundos por turno
+TURN_DURATION = 80  # cada jogador tem 80 segundos por turno
 
 
 def calc_score(marks: int) -> int:
@@ -113,13 +113,13 @@ class Game:
         self.turn_index: int = 0
         self.dice: dict = {}
         self.locked_rows: set = set()
-        # Fases: lobby | rolling | white_phase | color_phase | ended
+        # fases possíveis: lobby, rolling, choice, ended
         self.phase: str = "lobby"
-        # Controle da fase branca
+        # rastreio da fase branca
         self.white_confirmed: set = set()
         self.white_marked: set = set()
-        self.current_white_marks: dict = {}   # sid -> (color, number)
-        # Controle do turno ativo
+        self.current_white_marks: dict = {}   # o que cada jogador marcou no branco
+        # rastreio do jogador da vez
         self.active_turn_marked: bool = False
         self.color_phase_marked: bool = False
         self.current_color_mark: tuple | None = None  # (color, number)
@@ -140,7 +140,7 @@ class Game:
             self.turn_order.remove(sid)
         if self.host_sid == sid and self.players:
             self.host_sid = next(iter(self.players))
-        # Se todos confirmaram após saída de jogador, avança fase
+        # se o jogador que saiu era o último que faltava confirmar, avança
         if self.phase == "white_phase" and self._all_white_confirmed():
             self.phase = "color_phase"
 
@@ -186,7 +186,7 @@ class Game:
         return set(self.players.keys()) <= self.white_confirmed
 
     def _mark_number(self, sid: str, color: str, number: int) -> dict:
-        """Valida e aplica a marcação. Propaga fechamento global."""
+        # valida e aplica a marcação, fechando a linha pra todo mundo se necessário
         if color in self.locked_rows:
             return {"ok": False, "error": "Linha já fechada globalmente"}
         card: PlayerCard = self.players[sid]["card"]
@@ -197,15 +197,15 @@ class Game:
             self.locked_rows.add(color)
         return {"ok": True}
 
-    # ── Fase Branca ──────────────────────────────
+    # --- fase branca ---
 
     def mark_white(self, sid: str, color: str) -> dict:
-        """Qualquer jogador marca a soma dos dados brancos em uma linha."""
+        # qualquer jogador pode marcar a soma dos dados brancos em uma linha
         if self.phase != "choice":
             return {"ok": False, "error": "Não é a fase de escolha"}
         if sid in self.white_marked:
             return {"ok": False, "error": "Você já marcou nesta fase"}
-        # Jogador ativo que já marcou a combinação colorida não pode mais marcar o branco
+        # quem já marcou a combinação colorida não pode mais marcar o branco
         if sid == self.current_turn_sid and self.color_phase_marked:
             return {"ok": False, "error": "Você já marcou a combinação colorida — o branco não pode mais ser marcado"}
         number = self.dice["white_sum"]
@@ -217,10 +217,10 @@ class Game:
                 self.active_turn_marked = True
         return result
 
-    # ── Fase Colorida ────────────────────────────
+    # --- fase colorida ---
 
     def mark_color(self, sid: str, color: str, white_die: str) -> dict:
-        """Jogador ativo marca combinação (dado branco + dado colorido). Apenas uma por turno."""
+        # só quem é da vez pode marcar, e apenas uma combinação por turno
         if self.phase != "choice":
             return {"ok": False, "error": "Não é a fase de escolha"}
         if sid != self.current_turn_sid:
@@ -237,12 +237,12 @@ class Game:
             self.current_color_mark = (color, number)
         return result
 
-    # ── Pronto ───────────────────────────────────
+    # --- jogador pronto ---
 
     def player_ready(self, sid: str):
         self.ready_players.add(sid)
 
-    # ── Desfazer marcações ───────────────────────
+    # --- desfazer marcações ---
 
     def _recalc_locked_rows(self):
         self.locked_rows = set()
@@ -277,10 +277,10 @@ class Game:
         self.active_turn_marked = sid in self.white_marked
         return {"ok": True}
 
-    # ── Fim de turno ─────────────────────────────
+    # --- fim de turno ---
 
     def end_turn(self) -> tuple:
-        """Encerra o turno. Retorna (jogo_acabou, penalidade_dada). Só o jogador ativo chama."""
+        # encerra o turno e diz se o jogo acabou e se deu penalidade
         penalty_given = False
         if not self.active_turn_marked:
             self.players[self.current_turn_sid]["card"].add_penalty()
@@ -330,7 +330,7 @@ class Game:
         }
 
 
-# Gerenciamento de salas em memória
+# salas ativas em memória
 rooms: dict[str, Game] = {}
 
 

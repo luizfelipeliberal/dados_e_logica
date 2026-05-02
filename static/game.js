@@ -14,7 +14,7 @@ const COLORS = ["azul","marrom","roxo","vermelho"];
 const COLOR_LABELS = { azul:"Azul", marrom:"Marrom", roxo:"Roxo", vermelho:"Vermelho" };
 const MAX_PENALTIES = 4;
 
-// ── DOM ──────────────────────────────────────
+// --- elementos da tela ---
 const lobby       = document.getElementById("lobby");
 const waitingRoom = document.getElementById("waitingRoom");
 const gameArea    = document.getElementById("gameArea");
@@ -35,7 +35,7 @@ const messageLog  = document.getElementById("messageLog");
 const scoreboard  = document.getElementById("scoreboard");
 const finalScores = document.getElementById("finalScores");
 
-// ── Lobby ─────────────────────────────────────
+// --- lobby ---
 document.getElementById("btnCreate").addEventListener("click", () => {
   const name = document.getElementById("playerName").value.trim();
   if (!name) { lobbyError.textContent = "Digite seu nome."; return; }
@@ -53,7 +53,7 @@ document.getElementById("btnJoin").addEventListener("click", () => {
 document.getElementById("btnStart").addEventListener("click", () => socket.emit("start_game"));
 document.getElementById("btnRestart").addEventListener("click", () => location.reload());
 
-// ── Socket ────────────────────────────────────
+// --- conexão ---
 socket.on("connect", () => { mySid = socket.id; });
 
 socket.on("room_created", (data) => {
@@ -73,7 +73,7 @@ socket.on("game_state", (state) => {
   renderGame(state);
 });
 
-// ── Waiting Room ──────────────────────────────
+// --- sala de espera ---
 function renderWaiting(state) {
   roomCodeDisplay.textContent = state.room_id;
   show(waitingRoom);
@@ -90,7 +90,7 @@ function renderWaiting(state) {
   waitingMsg.style.display = mySid === state.host ? "none" : "";
 }
 
-// ── Game ──────────────────────────────────────
+// --- jogo ---
 function renderGame(state) {
   show(gameArea);
   const phase = state.phase;
@@ -113,7 +113,7 @@ function renderGame(state) {
   renderScoreboard(state);
 }
 
-// ── Timer ─────────────────────────────────────
+// --- temporizador ---
 function startTimer(startTime, duration, amActive) {
   stopTimer();
   const timerEl = document.getElementById("headerTimer");
@@ -143,7 +143,7 @@ function stopTimer() {
   if (timerEl) timerEl.classList.add("hidden");
 }
 
-// ── Cartela ───────────────────────────────────
+// --- cartela do jogador ---
 function renderCard(player, state) {
   if (!player) return;
   myCard.innerHTML = "";
@@ -178,7 +178,7 @@ function renderCard(player, state) {
       nums.appendChild(cell);
     });
 
-    // Bônus na borda direita (bonus_12 para ascendente, bonus_2 para descendente)
+    // bônus no final da linha, depende da direção (crescente ou decrescente)
     const rightBonusType = isAscending ? "bonus_12" : "bonus_2";
     const rightBonusNum  = isAscending ? 12 : 2;
     nums.appendChild(makeBonusCell(player, color, rightBonusType, rightBonusNum, state, isGlobalLocked));
@@ -187,7 +187,7 @@ function renderCard(player, state) {
     myCard.appendChild(container);
   });
 
-  // Penalidades
+  // penalidades
   myPenalties.innerHTML = "";
   for (let i = 0; i < MAX_PENALTIES; i++) {
     const box = document.createElement("div");
@@ -244,7 +244,7 @@ function canMarkNumber(player, color, number) {
   return true;
 }
 
-// ── Painel de Fase ────────────────────────────
+// --- painel de fase ---
 function renderPhasePanel(state, amActive) {
   phasePanel.innerHTML = "";
 
@@ -269,7 +269,7 @@ function renderChoicePhase(state, amActive) {
   const myPlayer = state.players[mySid];
   const alreadyWhiteMarked = state.white_marked?.includes(mySid);
 
-  // ── Dados (todos os dados numa linha) ─────────────────
+  // dados na tela
   const diceRow = document.createElement("div");
   diceRow.className = "dice-row";
   diceRow.appendChild(makeDie("white", dice.white1, "B1"));
@@ -277,7 +277,7 @@ function renderChoicePhase(state, amActive) {
   COLORS.forEach(c => diceRow.appendChild(makeDie(c, dice.colored[c])));
   phasePanel.appendChild(diceRow);
 
-  // ── Seção 1: Soma Branca (todos os jogadores) ──────────
+  // soma dos brancos (todos podem marcar)
   const whiteSection = document.createElement("div");
   whiteSection.className = "choice-section";
 
@@ -328,7 +328,7 @@ function renderChoicePhase(state, amActive) {
   }
   phasePanel.appendChild(whiteSection);
 
-  // ── Seção 2: Combinações Coloridas (só jogador ativo) ──
+  // combinações coloridas (só quem é da vez)
   const colorSection = document.createElement("div");
   colorSection.className = "choice-section";
 
@@ -408,7 +408,7 @@ function renderChoicePhase(state, amActive) {
     });
     colorSection.appendChild(info);
 
-    // Botão Pronto para jogadores não-ativos
+    // botão de pronto pra quem não é da vez
     const alreadyReady = state.ready_players?.includes(mySid);
     if (alreadyReady) {
       const readyDone = document.createElement("p");
@@ -423,7 +423,7 @@ function renderChoicePhase(state, amActive) {
   phasePanel.appendChild(colorSection);
 }
 
-// ── Scoreboard (pontos ocultos durante o jogo) ───
+// --- placar ---
 function renderScoreboard(state) {
   scoreboard.innerHTML = "";
   const order = state.turn_order.length ? state.turn_order : Object.keys(state.players);
@@ -453,7 +453,7 @@ function renderScoreboard(state) {
   });
 }
 
-// ── End Screen ────────────────────────────────
+// --- tela de resultado final ---
 function renderEndScreen(state) {
   show(endScreen);
   finalScores.innerHTML = "";
@@ -496,7 +496,7 @@ function renderEndScreen(state) {
   });
 }
 
-// ── Painel de Probabilidades ──────────────────
+// --- probabilidades ---
 (function initProbPanel() {
   const COMBOS = {
      2: [[1,1]],
@@ -539,7 +539,7 @@ function renderEndScreen(state) {
   btnClose.addEventListener("click", () => panel.classList.add("hidden-panel"));
 })();
 
-// ── Helpers ───────────────────────────────────
+// --- funções auxiliares ---
 function show(el) {
   [lobby, waitingRoom, gameArea, endScreen].forEach(e => e?.classList.add("hidden"));
   el?.classList.remove("hidden");

@@ -33,7 +33,7 @@ def index():
     return render_template("index.html")
 
 
-# ── Desconexão ────────────────────────────────
+# --- desconexão ---
 
 @socketio.on("disconnect")
 def on_disconnect():
@@ -54,7 +54,7 @@ def on_disconnect():
         emit("message", f"{player_name} saiu da sala.", to=room_id)
 
 
-# ── Lobby ─────────────────────────────────────
+# --- lobby ---
 
 @socketio.on("create_room")
 def on_create_room(data):
@@ -101,7 +101,7 @@ def on_start_game():
     emit("message", "O jogo começou!", to=room_id)
 
 
-# ── Rolagem ───────────────────────────────────
+# --- rolagem dos dados ---
 
 @socketio.on("roll_dice")
 def on_roll_dice():
@@ -123,7 +123,7 @@ def on_roll_dice():
     socketio.start_background_task(auto_end_background, room_id, game.turn_index)
 
 
-# ── Fase Branca (todos os jogadores) ─────────
+# --- fase branca (todos podem marcar) ---
 
 @socketio.on("mark_white")
 def on_mark_white(data):
@@ -143,7 +143,7 @@ def on_mark_white(data):
     emit("game_state", game.state(), to=room_id)
 
 
-# ── Fase Colorida (apenas jogador ativo) ──────
+# --- fase colorida (só quem é da vez) ---
 
 @socketio.on("mark_color")
 def on_mark_color(data):
@@ -167,7 +167,7 @@ def on_mark_color(data):
     emit("game_state", game.state(), to=room_id)
 
 
-# ── Bônus (células extras do 2 e do 12) ──────
+# --- bônus do 2 e do 12 ---
 
 @socketio.on("mark_bonus")
 def on_mark_bonus(data):
@@ -190,7 +190,7 @@ def on_mark_bonus(data):
     emit("game_state", game.state(), to=room_id)
 
 
-# ── Desfazer marcações ───────────────────────
+# --- desfazer ---
 
 @socketio.on("undo_white")
 def on_undo_white():
@@ -220,7 +220,7 @@ def on_undo_color():
     emit("game_state", game.state(), to=room_id)
 
 
-# ── Pronto ───────────────────────────────────
+# --- jogador pronto ---
 
 @socketio.on("player_ready")
 def on_player_ready():
@@ -233,7 +233,7 @@ def on_player_ready():
     emit("game_state", game.state(), to=room_id)
 
 
-# ── Encerrar turno ────────────────────────────
+# --- encerrar turno ---
 
 @socketio.on("end_turn")
 def on_end_turn():
