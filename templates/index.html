@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dados e Lógica</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+
+<!-- ── LOBBY ── -->
+<div id="lobby">
+  <div class="lobby-box">
+    <h1>🎲 Dados e Lógica</h1>
+    <input id="playerName" type="text" placeholder="Seu nome" maxlength="20" />
+    <div class="lobby-actions">
+      <button id="btnCreate">Criar Sala</button>
+      <div class="join-group">
+        <input id="roomCodeInput" type="text" placeholder="Código da sala" maxlength="6" />
+        <button id="btnJoin">Entrar</button>
+      </div>
+    </div>
+    <p id="lobbyError" class="error-msg"></p>
+  </div>
+</div>
+
+<!-- ── WAITING ROOM ── -->
+<div id="waitingRoom" class="hidden">
+  <div class="waiting-box">
+    <h2>Sala: <span id="roomCodeDisplay"></span></h2>
+    <p class="hint">Compartilhe o código com seus amigos!</p>
+    <div id="playerList"></div>
+    <button id="btnStart" class="hidden">Iniciar Jogo</button>
+    <p id="waitingMsg">Aguardando o host iniciar...</p>
+  </div>
+</div>
+
+<!-- ── GAME ── -->
+<div id="gameArea" class="hidden">
+  <header class="game-header">
+    <span id="headerRoom"></span>
+    <span id="headerPhase"></span>
+    <span id="headerTurn"></span>
+    <span id="headerTimer" class="timer hidden"></span>
+  </header>
+
+  <div class="game-layout">
+
+    <!-- Cartela do jogador -->
+    <section class="my-card-section">
+      <h3>Minha Cartela</h3>
+      <div id="myCard"></div>
+      <div class="penalty-area">
+        <span>Penalidades:</span>
+        <div id="myPenalties"></div>
+      </div>
+    </section>
+
+    <!-- Painel de fase central -->
+    <section class="center-section">
+      <div id="phasePanel"></div>
+      <div id="messageLog"></div>
+    </section>
+
+    <!-- Placar -->
+    <section class="scoreboard-section">
+      <h3>Jogadores (pontos revelados no fim)</h3>
+      <div id="scoreboard"></div>
+    </section>
+
+  </div>
+</div>
+
+<!-- ── FIM DE JOGO ── -->
+<div id="endScreen" class="hidden">
+  <div class="end-box">
+    <h2>🏆 Fim de Jogo!</h2>
+    <div id="finalScores"></div>
+    <button id="btnRestart">Nova Partida</button>
+  </div>
+</div>
+
+<!-- Elementos ocultos para compatibilidade com o JS -->
+<div id="diceDisplay" style="display:none"></div>
+
+<!-- ── MENU RETRÁTIL: PROBABILIDADES ── -->
+<div id="probPanel" class="prob-panel hidden-panel">
+  <div class="prob-header">
+    <span>Saídas por Número (2 dados)</span>
+    <button id="btnCloseProb">✕</button>
+  </div>
+  <div class="prob-body">
+    <div class="prob-legend">
+      <span class="prob-bar-label">Probabilidade</span>
+      <span class="prob-combos-label">Combinações</span>
+    </div>
+    <table class="prob-table">
+      <thead><tr><th>Nº</th><th>Saídas</th><th>Bar</th><th>Combinações</th></tr></thead>
+      <tbody id="probTableBody"></tbody>
+    </table>
+  </div>
+</div>
+<button id="btnProb" class="btn-prob-toggle">🎲 Probabilidades</button>
+
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+<script src="/static/game.js"></script>
+</body>
+</html>
