@@ -41,25 +41,25 @@
     <span id="headerRoom"></span>
     <span id="headerPhase"></span>
     <span id="headerTurn"></span>
-    <span id="headerTimer" class="timer hidden"></span>
   </header>
 
-  <div class="game-layout">
+  <div id="bodyTimer" class="body-timer hidden"></div>
 
-    <!-- Cartela do jogador -->
-    <section class="my-card-section">
-      <h3>Minha Cartela</h3>
-      <div id="myCard"></div>
-      <div class="penalty-area">
-        <span>Penalidades:</span>
-        <div id="myPenalties"></div>
-      </div>
-    </section>
+  <div class="game-layout">
 
     <!-- Painel de fase central -->
     <section class="center-section">
       <div id="phasePanel"></div>
       <div id="messageLog"></div>
+    </section>
+
+    <!-- Cartela do jogador -->
+    <section class="my-card-section">
+      <div id="myCard"></div>
+      <div class="penalty-area">
+        <span>Penalidades:</span>
+        <div id="myPenalties"></div>
+      </div>
     </section>
 
     <!-- Placar -->

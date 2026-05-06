@@ -9,10 +9,10 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 player_rooms: dict[str, str] = {}
 
 
-def auto_end_background(room_id: str, expected_turn_index: int):
+def auto_end_background(room_id: str, expected_turn_count: int):
     socketio.sleep(TURN_DURATION)
     game = get_room(room_id)
-    if not game or game.turn_index != expected_turn_index or game.phase != "choice":
+    if not game or game.turn_count != expected_turn_count or game.phase != "choice":
         return
     sid = game.current_turn_sid
     name = game.players.get(sid, {}).get("name", "?")
@@ -120,7 +120,7 @@ def on_roll_dice():
     name = game.players[sid]["name"]
     emit("game_state", game.state(), to=room_id)
     emit("message", f"{name} rolou os dados!", to=room_id)
-    socketio.start_background_task(auto_end_background, room_id, game.turn_index)
+    socketio.start_background_task(auto_end_background, room_id, game.turn_count)
 
 
 # --- fase branca (todos podem marcar) ---

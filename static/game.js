@@ -116,7 +116,7 @@ function renderGame(state) {
 // --- temporizador ---
 function startTimer(startTime, duration, amActive) {
   stopTimer();
-  const timerEl = document.getElementById("headerTimer");
+  const timerEl = document.getElementById("bodyTimer");
   timerEl.classList.remove("hidden");
 
   function tick() {
@@ -124,10 +124,13 @@ function startTimer(startTime, duration, amActive) {
     const mins = Math.floor(remaining / 60);
     const secs = Math.floor(remaining % 60);
     timerEl.textContent = `⏱ ${mins}:${secs.toString().padStart(2, "0")}`;
-    timerEl.className = "timer" + (remaining <= 15 ? " urgent" : remaining <= 30 ? " warn-timer" : "");
+    timerEl.className = "body-timer" + (remaining <= 15 ? " urgent" : remaining <= 30 ? " warn-timer" : "");
 
     if (remaining <= 0) {
-      stopTimer();
+      clearInterval(timerInterval);
+      timerInterval = null;
+      timerEl.textContent = "⏱ Tempo esgotado!";
+      timerEl.className = "body-timer urgent";
       if (amActive && gameState?.phase === "choice") socket.emit("end_turn");
     }
   }
@@ -139,7 +142,7 @@ function startTimer(startTime, duration, amActive) {
 function stopTimer() {
   clearInterval(timerInterval);
   timerInterval = null;
-  const timerEl = document.getElementById("headerTimer");
+  const timerEl = document.getElementById("bodyTimer");
   if (timerEl) timerEl.classList.add("hidden");
 }
 
@@ -301,6 +304,11 @@ function renderChoicePhase(state, amActive) {
     blocked.textContent = "⛔ Combinação colorida já marcada — branco bloqueado.";
     whiteSection.appendChild(blocked);
   } else {
+    const whiteHint = document.createElement("p");
+    whiteHint.className = "pick-hint";
+    whiteHint.innerHTML = "👇 Escolha aqui o número que você quer marcar";
+    whiteSection.appendChild(whiteHint);
+
     const whiteGrid = document.createElement("div");
     whiteGrid.className = "combo-grid";
     COLORS.forEach(color => {
@@ -343,6 +351,12 @@ function renderChoicePhase(state, amActive) {
 
   if (amActive) {
     const alreadyColorMarked = state.color_phase_marked;
+
+    const colorHint = document.createElement("p");
+    colorHint.className = "pick-hint";
+    colorHint.innerHTML = "👇 Escolha aqui o número que você quer marcar";
+    colorSection.appendChild(colorHint);
+
     const comboGrid = document.createElement("div");
     comboGrid.className = "combo-grid";
 
@@ -356,7 +370,10 @@ function renderChoicePhase(state, amActive) {
       lbl.className = "combo-label";
       lbl.textContent = COLOR_LABELS[color];
       row.appendChild(lbl);
-      [["white1", w1val], ["white2", w2val]].forEach(([die, val]) => {
+      const pairs = w1val <= w2val
+        ? [["white1", w1val], ["white2", w2val]]
+        : [["white2", w2val], ["white1", w1val]];
+      pairs.forEach(([die, val]) => {
         const btn = document.createElement("button");
         btn.className = `combo-btn ${color}`;
         btn.textContent = val;

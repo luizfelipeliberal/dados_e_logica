@@ -98,20 +98,21 @@ button:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
 .game-header span strong { color: var(--text); }
 
 .game-layout {
-  display: grid;
-  grid-template-columns: auto minmax(300px, 440px) 160px;
-  gap: 1.5rem;
-  padding: 1.5rem;
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
   flex: 1;
-  align-items: start;
+  align-items: flex-start;
 }
-.my-card-section    { grid-column: 1; display: flex; flex-direction: column; align-items: center; }
-.center-section     { grid-column: 2; }
-.scoreboard-section { grid-column: 3; }
+.my-card-section    { flex: 0 0 auto; display: flex; flex-direction: column; align-items: flex-start; }
+.center-section     { flex: 1; min-width: 313px; max-width: 469px; }
+.scoreboard-section { flex: 0 0 150px; }
 
 @media (max-width: 960px) {
-  .game-layout { grid-template-columns: 1fr; }
-  .my-card-section, .center-section, .scoreboard-section { grid-column: 1; }
+  .game-layout { flex-direction: column; }
+  .center-section { max-width: 100%; }
+  .scoreboard-section { flex: 0 0 auto; width: 100%; }
 }
 
 .my-card-section h3,
@@ -245,11 +246,11 @@ button:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
 
 #phasePanel {
   background: var(--surface);
-  border-radius: 14px;
-  padding: 1.2rem;
+  border-radius: 12px;
+  padding: 0.75rem;
   display: flex;
   flex-direction: column;
-  gap: 0.8rem;
+  gap: 0.5rem;
 }
 
 .phase-title {
@@ -264,38 +265,56 @@ button:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
 .phase-hint.success { color: var(--success); }
 .phase-hint.warn    { color: var(--warning); }
 
+.pick-hint {
+  font-size: 0.72rem;
+  color: var(--warning);
+  text-align: center;
+  margin-bottom: 0.2rem;
+  animation: pulse-hint 1.4s ease-in-out infinite;
+}
+@keyframes pulse-hint {
+  0%, 100% { color: var(--warning); }
+  50%       { color: #fff; }
+}
+
 /* Dados visuais */
-.dice-row { display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center; }
+.dice-row { display: flex; gap: 0.35rem; flex-wrap: wrap; justify-content: center; }
 .die {
-  width: 50px; height: 50px; border-radius: 10px;
+  width: 40px; height: 40px; border-radius: 8px;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
-  font-size: 1.3rem; font-weight: 900; color: #fff;
-  box-shadow: 0 3px 6px #0005; position: relative;
+  font-size: 1.05rem; font-weight: 900; color: #fff;
+  box-shadow: 0 2px 5px #0005; position: relative;
 }
 .die.white    { background: var(--white-die); color: #333; }
 .die.azul     { background: var(--azul); }
 .die.marrom   { background: var(--marrom); }
 .die.roxo     { background: var(--roxo); }
 .die.vermelho { background: var(--vermelho); }
-.die-label    { font-size: 0.5rem; font-weight: 400; opacity: 0.8; }
+.die-label    { font-size: 0.42rem; font-weight: 400; opacity: 0.8; }
 
 /* Botões de ação */
 .btn-roll, .btn-confirm-white, .btn-end-turn, .btn-undo, .btn-ready {
-  width: 100%; padding: 0.75rem; font-size: 1rem;
+  width: 100%; padding: 0.55rem; font-size: 0.85rem;
 }
 .btn-roll          { background: var(--warning); color: #fff; }
 .btn-confirm-white { background: var(--card); color: var(--text); border: 1px solid #555; }
 .btn-end-turn      { background: var(--success); color: #fff; }
-.btn-undo          { background: #444; color: #ccc; border: 1px solid #666; font-size: 0.85rem; padding: 0.5rem; }
+.btn-undo          { background: #444; color: #ccc; border: 1px solid #666; font-size: 0.78rem; padding: 0.38rem; }
 .btn-ready         { background: #1a6fba55; color: #7ec8ff; border: 1px solid #1a6fba; }
 
-/* ── Timer ── */
-.timer {
-  font-weight: 700; font-size: 1rem; color: var(--success);
-  background: #0f3460; border-radius: 8px; padding: 0.2rem 0.7rem;
+/* ── Timer (corpo da página) ── */
+.body-timer {
+  font-weight: 700;
+  font-size: 2rem;
+  color: var(--success);
+  background: var(--surface);
+  border-bottom: 2px solid #333;
+  text-align: center;
+  padding: 0.5rem 1rem;
+  letter-spacing: 2px;
 }
-.timer.warn-timer { color: var(--warning); }
-.timer.urgent     { color: var(--accent); animation: pulse-timer 0.6s ease-in-out infinite; }
+.body-timer.warn-timer { color: var(--warning); }
+.body-timer.urgent     { color: var(--accent); animation: pulse-timer 0.6s ease-in-out infinite; }
 @keyframes pulse-timer {
   0%, 100% { opacity: 1; }
   50%       { opacity: 0.5; }
@@ -313,22 +332,22 @@ button:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
 .confirm-badge.done { background: var(--success); color: #fff; border-color: var(--success); }
 
 /* ── Painel de escolha unificado ── */
-.choice-section { display: flex; flex-direction: column; gap: 0.5rem; }
+.choice-section { display: flex; flex-direction: column; gap: 0.35rem; }
 .choice-section-title {
-  font-size: 0.88rem; font-weight: 600;
-  border-bottom: 1px solid #333; padding-bottom: 0.3rem; margin-bottom: 0.2rem;
+  font-size: 0.75rem; font-weight: 600;
+  border-bottom: 1px solid #333; padding-bottom: 0.2rem; margin-bottom: 0.1rem;
 }
 
 /* Combos da fase colorida */
-.combo-grid { display: flex; flex-direction: column; gap: 0.5rem; }
+.combo-grid { display: flex; flex-direction: column; gap: 0.3rem; }
 .combo-row {
-  display: flex; align-items: center; gap: 0.5rem;
-  background: #ffffff12; border-radius: 8px; padding: 0.4rem 0.6rem;
+  display: flex; align-items: center; gap: 0.35rem;
+  background: #ffffff12; border-radius: 7px; padding: 0.22rem 0.45rem;
 }
-.combo-label { font-size: 0.78rem; font-weight: 600; min-width: 56px; color: var(--muted); }
+.combo-label { font-size: 0.7rem; font-weight: 600; min-width: 46px; color: var(--muted); flex-shrink: 0; }
 .combo-btn {
-  flex: 1; padding: 0.45rem 0; font-size: 0.95rem; font-weight: 700;
-  border-radius: 7px; color: #fff;
+  flex: 1; padding: 0.28rem 0; font-size: 0.82rem; font-weight: 700;
+  border-radius: 6px; color: #fff;
 }
 .combo-btn.azul     { background: var(--azul); }
 .combo-btn.marrom   { background: var(--marrom); }

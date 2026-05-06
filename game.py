@@ -126,6 +126,7 @@ class Game:
         # Timer e prontos
         self.turn_start_time: float = 0.0
         self.ready_players: set = set()
+        self.turn_count: int = 0  # incrementa a cada end_turn, nunca repete
 
     def add_player(self, sid: str, name: str):
         self.players[sid] = {"name": name, "card": PlayerCard()}
@@ -280,7 +281,7 @@ class Game:
     # --- fim de turno ---
 
     def end_turn(self) -> tuple:
-        # encerra o turno e diz se o jogo acabou e se deu penalidade
+        self.turn_count += 1
         penalty_given = False
         if not self.active_turn_marked:
             self.players[self.current_turn_sid]["card"].add_penalty()
